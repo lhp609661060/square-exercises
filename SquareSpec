@@ -1,0 +1,39 @@
+import org.scalacheck.Gen.Choose
+import org.scalacheck.{Gen, Arbitrary, Properties}
+import org.scalacheck.Prop.forAll
+import Square.isSquare
+
+object SquareSpec extends Properties("Square"){
+
+  val successPoints = List(
+    List(Point(0,0), Point(2,0), Point(0,2), Point(2,2)),
+    List(Point(1,0), Point(3,0), Point(1,2), Point(3,2))
+  )
+
+  val errorPoints = List(
+    List(Point(0,0), Point(2,0), Point(0,2), Point(2,3))
+  )
+
+  val points: Gen[Point] =
+    for {
+      x <- Gen.choose(-100, 100)
+      y <- Gen.choose(-100, 100)
+    } yield Point(x, y)
+
+  property("isSquare 参数错误必须是4位") = forAll(points, points) { (a, b) =>
+    isSquare(a, b)
+  }
+
+  property("isSquare 随机") = forAll(points, points, points, points) { (a, b, c, d) =>
+    isSquare(a, b, c, d)
+  }
+
+  property("isSquare 成功") = forAll(Gen.oneOf(successPoints)) { p =>
+    isSquare( p: _* )
+  }
+
+  property("isSquare 错误") = forAll(Gen.oneOf(errorPoints)) { p =>
+    isSquare( p: _* )
+  }
+
+}
